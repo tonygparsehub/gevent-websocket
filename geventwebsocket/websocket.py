@@ -142,10 +142,6 @@ class WebSocket(object):
 
         return self.environ.get('PATH_INFO')
 
-    @property
-    def logger(self):
-        return self.handler.logger
-
     def handle_close(self, header, payload):
         """
         Called when a close frame has been decoded from the stream.
@@ -368,9 +364,8 @@ class WebSocket(object):
         except WebSocketError:
             # Failed to write the closing frame but it's ok because we're
             # closing the socket anyway.
-            self.logger.debug("Failed to write closing frame -> closing socket")
+            pass
         finally:
-            self.logger.debug("Closed WebSocket")
             self.closed = True
 
             self.stream = None
