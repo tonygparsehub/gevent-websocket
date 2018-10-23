@@ -266,11 +266,11 @@ class WebSocketHandler(WSGIHandler):
         This is used by other projects that need to support WebSocket
         connections as part of a larger effort.
         """
-        assert not self.headers_sent
-
         if not self.environ.get('wsgi.websocket'):
             # a WebSocket connection is not established, do nothing
             return
+
+        assert not self.headers_sent
 
         # So that `finalize_headers` doesn't write a Content-Length header
         self.provided_content_length = False
