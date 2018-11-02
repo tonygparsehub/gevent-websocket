@@ -1,5 +1,7 @@
 import struct
 import socket
+import time
+from threading import RLock
 
 from ._compat import string_types, range_type, text_type
 from .exceptions import ProtocolError
@@ -24,7 +26,7 @@ class WebSocket(object):
     """
 
     __slots__ = ('utf8validator', 'utf8validate_last', 'environ', 'closed',
-                 'stream', 'raw_write', 'raw_read', 'handler')
+                 'stream', 'raw_write', 'raw_read', 'handler', 'lock')
 
     OPCODE_CONTINUATION = 0x00
     OPCODE_TEXT = 0x01
@@ -41,6 +43,7 @@ class WebSocket(object):
 
         self.raw_write = stream.write
         self.raw_read = stream.read
+        self.lock = RLock()
 
         self.utf8validator = Utf8Validator()
         self.handler = handler
@@ -233,7 +236,8 @@ class WebSocket(object):
         message = bytearray()
 
         while True:
-            header, payload = self.read_frame()
+            with self.lock:
+                header, payload = self.read_frame()
             f_opcode = header.opcode
 
             if f_opcode in (self.OPCODE_TEXT, self.OPCODE_BINARY):
@@ -563,3 +567,4 @@ class Header(object):
             result.extend(mask)
 
         return result
+
